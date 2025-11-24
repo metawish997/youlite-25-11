@@ -37,17 +37,18 @@ const CartComponent = () => {
   const [busyQty, setBusyQty] = useState<Record<string, boolean>>({});
   const [busyRemove, setBusyRemove] = useState<Record<string, boolean>>({});
 
+  // Navigation helper
+  const go = (path: string) => router.push(path as any);
+
+  /* -------------------- Load Cart -------------------- */
   const loadCart = useCallback(async () => {
     try {
-      console.log('🛒 STARTING CART LOAD...');
       setLoading(true);
       setErrorText('');
 
       const session = await getSession();
-      console.log('🛒 SESSION:', session);
 
       if (!session?.user?.id) {
-        console.log('🛒 NO USER ID - SHOWING LOGIN MESSAGE');
         setErrorText('Please log in to view your cart.');
         setCartItems([]);
         setLoading(false);
@@ -55,10 +56,7 @@ const CartComponent = () => {
       }
 
       setUserId(session.user.id);
-      console.log('🛒 USER ID SET:', session.user.id);
-
       const customer = await getCustomerById(session.user.id);
-      console.log('🛒 CUSTOMER DATA:', customer);
 
       if (!customer) {
         setErrorText('Failed to load customer data.');
@@ -67,13 +65,9 @@ const CartComponent = () => {
         return;
       }
 
-      // Get cart data from meta_data
       const cartMeta = customer.meta_data?.find((m: any) => m.key === 'cart')?.value || [];
-      console.log('🛒 CART META DATA:', cartMeta);
-      console.log('🛒 CART ITEMS COUNT:', cartMeta.length);
 
       if (!Array.isArray(cartMeta) || cartMeta.length === 0) {
-        console.log('🛒 CART IS EMPTY');
         setCartItems([]);
         setLoading(false);
         return;
@@ -83,41 +77,19 @@ const CartComponent = () => {
 
       for (const entry of cartMeta) {
         const { id, quantity } = entry;
-
-        if (!id) {
-          console.warn('🛒 SKIPPING ENTRY WITH NO ID:', entry);
-          continue;
-        }
+        if (!id) continue;
 
         try {
-          console.log(`🛒 FETCHING PRODUCT ${id}...`);
           const productResponse = await getProductDetail(id.toString());
-
-          // Handle different response structures
           const productData = productResponse?.data || productResponse;
+          if (!productData) continue;
 
-          if (!productData) {
-            console.warn(`🛒 PRODUCT ${id} NOT FOUND`);
-            continue;
-          }
-
-          console.log(`🛒 PRODUCT ${id} DATA:`, productData);
-
-          // Extract product attributes
           const attrs = Array.isArray(productData.attributes) ? productData.attributes : [];
-          const colorAttr = attrs.find((a: any) =>
-            a?.name?.toLowerCase().includes('color') ||
-            a?.slug?.toLowerCase().includes('color')
-          );
-          const sizeAttr = attrs.find((a: any) =>
-            a?.name?.toLowerCase().includes('size') ||
-            a?.slug?.toLowerCase().includes('size')
-          );
+          const color = attrs.find((a: any) => a?.name?.toLowerCase().includes('color'))
+            ?.options?.[0] || 'Default';
+          const size = attrs.find((a: any) => a?.name?.toLowerCase().includes('size'))
+            ?.options?.[0] || 'Default';
 
-          const color = colorAttr?.options?.[0] || 'Default';
-          const size = sizeAttr?.options?.[0] || 'Default';
-
-          // Get prices - handle different price fields
           const price = parseFloat(
             productData.sale_price ||
             productData.price ||
@@ -131,13 +103,12 @@ const CartComponent = () => {
             price.toString()
           );
 
-          // Get image
           const imageUri =
             productData.images?.[0]?.src ||
             productData.image?.src ||
             'https://via.placeholder.com/100';
 
-          const item: CartItem = {
+          fetched.push({
             id: productData.id?.toString() || id.toString(),
             name: productData.name || 'Unnamed Product',
             price: isNaN(price) ? 0 : price,
@@ -146,28 +117,20 @@ const CartComponent = () => {
             color,
             image: { uri: imageUri },
             quantity: quantity || 1,
-          };
+          });
 
-          console.log(`🛒 ADDED ITEM:`, item);
-          fetched.push(item);
-
-        } catch (productError) {
-          console.error(`🛒 ERROR LOADING PRODUCT ${id}:`, productError);
-          // Continue with other products even if one fails
+        } catch (err) {
           continue;
         }
       }
 
-      console.log('🛒 FINAL CART ITEMS:', fetched);
       setCartItems(fetched);
 
     } catch (err) {
-      console.error('🛒 CART LOAD ERROR:', err);
       setErrorText('Failed to load cart. Please try again.');
       setCartItems([]);
     } finally {
       setLoading(false);
-      console.log('🛒 CART LOAD COMPLETED');
     }
   }, []);
 
@@ -177,6 +140,7 @@ const CartComponent = () => {
     }, [loadCart])
   );
 
+  /* -------------------- Meta Update -------------------- */
   const updateCartMeta = async (items: CartItem[]) => {
     if (!userId) return;
 
@@ -189,13 +153,12 @@ const CartComponent = () => {
       await updateCustomerById(userId, {
         meta_data: [{ key: 'cart', value: meta }]
       });
-      console.log('🛒 CART UPDATED SUCCESSFULLY');
-    } catch (e) {
-      console.error('🛒 CART UPDATE ERROR:', e);
+    } catch {
       Alert.alert('Error', 'Failed to update cart');
     }
   };
 
+  /* -------------------- Update Quantity -------------------- */
   const updateQuantity = async (id: string, qty: number) => {
     if (qty < 1) return;
 
@@ -208,6 +171,7 @@ const CartComponent = () => {
     setBusyQty((p) => ({ ...p, [id]: false }));
   };
 
+  /* -------------------- Remove Item -------------------- */
   const removeItem = async (id: string) => {
     setBusyRemove((p) => ({ ...p, [id]: true }));
     const updated = cartItems.filter((it) => it.id !== id);
@@ -216,20 +180,32 @@ const CartComponent = () => {
     setBusyRemove((p) => ({ ...p, [id]: false }));
   };
 
-  const calculateTotals = () => {
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  /* -------------------- Totals -------------------- */
+  const subtotal = cartItems.reduce((s, it) => s + it.price * it.quantity, 0);
+  const totalQuantity = cartItems.reduce((s, it) => s + it.quantity, 0);
+  const total = subtotal;
 
-    return {
-      subtotal,
-      totalQuantity,
-      total: subtotal,
-    };
-  };
+  /* -------------------- Quick Links (Always Visible) -------------------- */
+  const QuickLinks = () => (
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity style={styles.optionButton} onPress={() => go('/pages/orderHistory/orderHistory')}>
+        <Ionicons name="receipt-outline" size={20} color={Colors.PRIMARY} />
+        <Text style={styles.optionText}>Orders</Text>
+      </TouchableOpacity>
 
-  const { subtotal, totalQuantity, total } = calculateTotals();
+      <TouchableOpacity style={styles.optionButton} onPress={() => go('/pages/AddToCart/Coupons')}>
+        <Ionicons name="pricetag-outline" size={20} color={Colors.PRIMARY} />
+        <Text style={styles.optionText}>Coupons</Text>
+      </TouchableOpacity>
 
-  // Loading state
+      <TouchableOpacity style={styles.optionButton} onPress={() => go('/pages/AddToCart/Help')}>
+        <Ionicons name="help-circle-outline" size={20} color={Colors.PRIMARY} />
+        <Text style={styles.optionText}>Help</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  /* -------------------- Loading -------------------- */
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -238,45 +214,77 @@ const CartComponent = () => {
     );
   }
 
-  // Error state
+  /* -------------------- Error State (Still Show Quick Links) -------------------- */
   if (errorText) {
     return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="cart-outline" size={64} color="#ccc" />
-        <Text style={styles.errorText}>{errorText}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={loadCart}>
-          <Text style={styles.retryText}>Retry</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.retryButton, { backgroundColor: '#666' }]}
-          onPress={() => router.push('/Login/LoginRegisterPage')}
-        >
-          <Text style={styles.retryText}>Login</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
+            <Ionicons name="arrow-back" size={24} color={Colors.WHITE} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>My Cart</Text>
+          <Text style={styles.cartCountText}>0 items</Text>
+        </View>
+
+        <QuickLinks />
+
+        <View style={styles.errorContainer}>
+          <Ionicons name="cart-outline" size={80} color="#ccc" />
+          <Text style={styles.errorText}>{errorText}</Text>
+
+          <TouchableOpacity style={styles.retryButton} onPress={loadCart}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.retryButton, { backgroundColor: '#555' }]}
+            onPress={() => router.push('/Login/LoginRegisterPage')}
+          >
+            <Text style={styles.retryText}>Login</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
-  // Empty cart state
+  /* -------------------- Empty Cart (Still Show Quick Links) -------------------- */
   if (cartItems.length === 0) {
     return (
-      <View style={styles.emptyCart}>
-        <Ionicons name="cart-outline" size={80} color="#ddd" />
-        <Text style={styles.emptyText}>Your cart is empty</Text>
-        <Text style={styles.emptySubtext}>Browse our products and start adding items!</Text>
-        <TouchableOpacity
-          style={styles.shopButton}
-          onPress={() => router.push('/(tabs)/Category')}
-        >
-          <Text style={styles.shopButtonText}>Shop Now</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
+            <Ionicons name="arrow-back" size={24} color={Colors.WHITE} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>My Cart</Text>
+          <Text style={styles.cartCountText}>0 items</Text>
+        </View>
+
+        <QuickLinks />
+
+        <View style={styles.emptyCart}>
+          <Ionicons name="cart-outline" size={80} color="#ddd" />
+          <Text style={styles.emptyText}>Your cart is empty</Text>
+          <Text style={styles.emptySubtext}>Browse our products and start adding items!</Text>
+
+          <TouchableOpacity
+            style={styles.shopButton}
+            onPress={() => router.push('/(tabs)/Category')}
+          >
+            <Text style={styles.shopButtonText}>Shop Now</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
-  // Main cart view
+  /* -------------------- Main Cart -------------------- */
   return (
     <View style={styles.container}>
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
@@ -286,103 +294,83 @@ const CartComponent = () => {
         <Text style={styles.cartCountText}>{totalQuantity} items</Text>
       </View>
 
-      {/* Cart Items */}
+      <QuickLinks />
+
       <ScrollView style={styles.itemsContainer} showsVerticalScrollIndicator={false}>
-        <View>
-          {cartItems.map((item) => (
-            <View key={item.id} style={styles.itemCard}>
-              {/* Product Image */}
-              <TouchableOpacity
-                onPress={() => router.push({
+        {cartItems.map((item) => (
+          <View key={item.id} style={styles.itemCard}>
+
+            <TouchableOpacity
+              style={styles.imageContainer}
+              onPress={() =>
+                router.push({
                   pathname: '/pages/DetailsOfItem/ItemDetails',
-                  params: {
-                    id: item.id,
-                    title: item.name
-                  }
-                })}
-                style={styles.imageContainer}
-              >
-                <Image
-                  source={{ uri: item.image.uri }}
-                  style={styles.itemImage}
-                />
-              </TouchableOpacity>
+                  params: { id: item.id, title: item.name }
+                })
+              }
+            >
+              <Image source={{ uri: item.image.uri }} style={styles.itemImage} />
+            </TouchableOpacity>
 
-              {/* Product Details */}
-              <View style={styles.itemDetails}>
-                <Text style={styles.itemName} numberOfLines={2}>
-                  {item.name}
-                </Text>
+            <View style={styles.itemDetails}>
+              <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
+              <Text style={styles.itemSizeColor}>Size: {item.size} | Color: {item.color}</Text>
 
-                <Text style={styles.itemSizeColor}>
-                  Size: {item.size} | Color: {item.color}
-                </Text>
+              <View style={styles.priceContainer}>
+                <Text style={styles.itemPrice}>₹{item.price.toLocaleString()}</Text>
+                {item.originalPrice > item.price && (
+                  <>
+                    <Text style={styles.originalPrice}>₹{item.originalPrice.toLocaleString()}</Text>
+                    <Text style={styles.discountText}>
+                      {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% OFF
+                    </Text>
+                  </>
+                )}
+              </View>
 
-                {/* Price */}
-                <View style={styles.priceContainer}>
-                  <Text style={styles.itemPrice}>₹{item.price.toLocaleString()}</Text>
-                  {item.originalPrice > item.price && (
-                    <>
-                      <Text style={styles.originalPrice}>
-                        ₹{item.originalPrice.toLocaleString()}
-                      </Text>
-                      <Text style={styles.discountText}>
-                        {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% OFF
-                      </Text>
-                    </>
-                  )}
-                </View>
+              <View style={styles.quantityContainer}>
 
-                {/* Quantity Controls */}
-                <View style={styles.quantityContainer}>
-                  <TouchableOpacity
-                    onPress={() => updateQuantity(item.id, item.quantity - 1)}
-                    style={styles.quantityButton}
-                    disabled={busyQty[item.id] || item.quantity <= 1}
-                  >
-                    {busyQty[item.id] ? (
-                      <ActivityIndicator size={16} color={Colors.PRIMARY} />
-                    ) : (
-                      <Ionicons name="remove" size={20} color="#333" />
-                    )}
-                  </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => updateQuantity(item.id, item.quantity - 1)}
+                  style={styles.quantityButton}
+                  disabled={busyQty[item.id] || item.quantity <= 1}
+                >
+                  {busyQty[item.id] ?
+                    <ActivityIndicator size={16} color={Colors.PRIMARY} /> :
+                    <Ionicons name="remove" size={20} color="#333" />}
+                </TouchableOpacity>
 
-                  <Text style={styles.quantityText}>{item.quantity}</Text>
+                <Text style={styles.quantityText}>{item.quantity}</Text>
 
-                  <TouchableOpacity
-                    onPress={() => updateQuantity(item.id, item.quantity + 1)}
-                    style={styles.quantityButton}
-                    disabled={busyQty[item.id]}
-                  >
-                    {busyQty[item.id] ? (
-                      <ActivityIndicator size={16} color={Colors.PRIMARY} />
-                    ) : (
-                      <Ionicons name="add" size={20} color="#333" />
-                    )}
-                  </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => updateQuantity(item.id, item.quantity + 1)}
+                  style={styles.quantityButton}
+                  disabled={busyQty[item.id]}
+                >
+                  {busyQty[item.id] ?
+                    <ActivityIndicator size={16} color={Colors.PRIMARY} /> :
+                    <Ionicons name="add" size={20} color="#333" />}
+                </TouchableOpacity>
 
-                  {/* Remove Button */}
-                  <TouchableOpacity
-                    onPress={() => removeItem(item.id)}
-                    style={styles.removeButton}
-                    disabled={busyRemove[item.id]}
-                  >
-                    {busyRemove[item.id] ? (
-                      <ActivityIndicator size={14} color="#ff3f6c" />
-                    ) : (
-                      <Text style={styles.removeText}>Remove</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
+                <TouchableOpacity
+                  onPress={() => removeItem(item.id)}
+                  style={styles.removeButton}
+                  disabled={busyRemove[item.id]}
+                >
+                  {busyRemove[item.id] ?
+                    <ActivityIndicator size={14} color="#ff3f6c" /> :
+                    <Text style={styles.removeText}>Remove</Text>}
+                </TouchableOpacity>
+
               </View>
             </View>
-          ))}
+          </View>
+        ))}
 
-          <View style={styles.spacer} />
-        </View>
+        <View style={styles.spacer} />
       </ScrollView>
 
-      {/* Checkout Footer */}
+      {/* Footer */}
       <View style={styles.bottomContainer}>
         <View style={styles.summaryContainer}>
           <View style={styles.summaryRow}>
@@ -408,6 +396,7 @@ const CartComponent = () => {
           <Text style={styles.checkoutText}>Proceed to Checkout</Text>
         </TouchableOpacity>
       </View>
+
     </View>
   );
 };

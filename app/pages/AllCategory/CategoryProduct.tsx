@@ -368,88 +368,90 @@ const CategoryProduct: React.FC = () => {
   const trending = useMemo(() => products.filter(p => p.isTrending), [products]);
 
   /* ---------- RENDER ITEM ---------- */
-  const renderCard = ({ item }: { item: Product }) => {
+  const renderCard = ({ item, isHorizontal = false }: { item: Product; isHorizontal?: boolean }) => {
     const img = toImg(item.image, item.raw);
     const isWishLoading = loadingWishlist[item.id] || false;
     const isCartLoading = loadingCart[item.effectiveId] || false;
     return (
-      <TouchableOpacity
-        // style={styles.card}
-        activeOpacity={0.85}
-        onPress={() =>
-          router.push({ pathname: '/pages/DetailsOfItem/ItemDetails', params: { id: item.id, title: item.name } })
-        }
-      >
-        {/* IMAGE */}
-        <View style={styles.imageBox}>
-          {item.discount && (
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountTxt}>{item.discount}</Text>
-            </View>
-          )}
-          {/* wishlist icon */}
-          <TouchableOpacity
-            style={styles.wishlistBtn}
-            onPress={() => toggleWishlist(item.id)}
-            activeOpacity={0.7}
-            disabled={isWishLoading}
-          >
-            {isWishLoading ? (
-              <ActivityIndicator size="small" color={Colors.WHITE} />
-            ) : (
-              <Ionicons
-                name={isInWishlist(item.id) ? 'heart' : 'heart-outline'}
-                size={18}
-                color={isInWishlist(item.id) ? Colors.PRIMARY : '#fff'}
-              />
+      <View style={isHorizontal ? styles.horizontalCard : styles.verticalCard}>
+        <TouchableOpacity
+          // style={styles.card}
+          activeOpacity={0.85}
+          onPress={() =>
+            router.push({ pathname: '/pages/DetailsOfItem/ItemDetails', params: { id: item.id, title: item.name } })
+          }
+        >
+          {/* IMAGE */}
+          <View style={styles.imageBox}>
+            {item.discount && (
+              <View style={styles.discountBadge}>
+                <Text style={styles.discountTxt}>{item.discount}</Text>
+              </View>
             )}
-          </TouchableOpacity>
-          {img ? (
-            <Image source={img} style={styles.image} />
-          ) : (
-            <View style={[styles.image, styles.noImg]}>
-              <Ionicons name="image" size={32} color={Colors.PRIMARY} />
-            </View>
-          )}
-        </View>
-        {/* INFO */}
-        <View style={styles.info}>
-          <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
-          <View style={styles.ratingRow}>
-            {[1, 2, 3, 4, 5].map((star) => {
-              if (star <= (item.rating ?? 0)) {
-                return <Ionicons key={star} name="star" size={12} color="#FFD700" />;
-              } else if (star - 0.5 <= (item.rating ?? 0)) {
-                return <Ionicons key={star} name="star-half" size={12} color="#FFD700" />;
-              } else {
-                return <Ionicons key={star} name="star-outline" size={12} color="#FFD700" />;
-              }
-            })}
-            <Text style={styles.ratingTxt}>{(item.rating ?? 0).toFixed(1)}</Text>
-          </View>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceNow}>₹{item.price.toFixed(2)}</Text>
-            {item.originalPrice && item.originalPrice > item.price && (
-              <Text style={styles.priceOrig}>₹{item.originalPrice.toFixed(2)}</Text>
+            {/* wishlist icon */}
+            <TouchableOpacity
+              style={styles.wishlistBtn}
+              onPress={() => toggleWishlist(item.id)}
+              activeOpacity={0.7}
+              disabled={isWishLoading}
+            >
+              {isWishLoading ? (
+                <ActivityIndicator size="small" color={Colors.WHITE} />
+              ) : (
+                <Ionicons
+                  name={isInWishlist(item.id) ? 'heart' : 'heart-outline'}
+                  size={18}
+                  color={isInWishlist(item.id) ? Colors.PRIMARY : '#fff'}
+                />
+              )}
+            </TouchableOpacity>
+            {img ? (
+              <Image source={img} style={styles.image} />
+            ) : (
+              <View style={[styles.image, styles.noImg]}>
+                <Ionicons name="image" size={32} color={Colors.PRIMARY} />
+              </View>
             )}
           </View>
-          <TouchableOpacity
-            style={[styles.cartBtn, isInCart(item.effectiveId) && styles.cartBtnAdded]}
-            onPress={() => addToCart(item.effectiveId)}
-            disabled={isInCart(item.effectiveId) || isCartLoading}
-            activeOpacity={0.8}
-          >
-            {isCartLoading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <>
-                <Ionicons name={isInCart(item.effectiveId) ? 'checkmark' : 'cart'} size={14} color="#fff" />
-                <Text style={styles.cartTxt}>{isInCart(item.effectiveId) ? 'In Cart' : 'Add'}</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+          {/* INFO */}
+          <View style={styles.info}>
+            <Text style={styles.name} numberOfLines={2}>{item.name}</Text>
+            <View style={styles.ratingRow}>
+              {[1, 2, 3, 4, 5].map((star) => {
+                if (star <= (item.rating ?? 0)) {
+                  return <Ionicons key={star} name="star" size={12} color="#FFD700" />;
+                } else if (star - 0.5 <= (item.rating ?? 0)) {
+                  return <Ionicons key={star} name="star-half" size={12} color="#FFD700" />;
+                } else {
+                  return <Ionicons key={star} name="star-outline" size={12} color="#FFD700" />;
+                }
+              })}
+              <Text style={styles.ratingTxt}>{(item.rating ?? 0).toFixed(1)}</Text>
+            </View>
+            <View style={styles.priceRow}>
+              <Text style={styles.priceNow}>₹{item.price.toFixed(2)}</Text>
+              {item.originalPrice && item.originalPrice > item.price && (
+                <Text style={styles.priceOrig}>₹{item.originalPrice.toFixed(2)}</Text>
+              )}
+            </View>
+            <TouchableOpacity
+              style={[styles.cartBtn, isInCart(item.effectiveId) && styles.cartBtnAdded]}
+              onPress={() => addToCart(item.effectiveId)}
+              disabled={isInCart(item.effectiveId) || isCartLoading}
+              activeOpacity={0.8}
+            >
+              {isCartLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name={isInCart(item.effectiveId) ? 'checkmark' : 'cart'} size={14} color="#fff" />
+                  <Text style={styles.cartTxt}>{isInCart(item.effectiveId) ? 'In Cart' : 'Add'}</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -512,7 +514,7 @@ const CategoryProduct: React.FC = () => {
             <FlatList
               horizontal
               data={featured}
-              renderItem={renderCard}
+              renderItem={({ item }) => renderCard({ item, isHorizontal: true })}
               keyExtractor={keyExtractor}
               showsHorizontalScrollIndicator={false}
             />
@@ -525,7 +527,7 @@ const CategoryProduct: React.FC = () => {
             <FlatList
               horizontal
               data={trending}
-              renderItem={renderCard}
+              renderItem={({ item }) => renderCard({ item, isHorizontal: true })}
               keyExtractor={keyExtractor}
               showsHorizontalScrollIndicator={false}
             />
@@ -558,7 +560,10 @@ export default CategoryProduct;
 /* ====================================================================== */
 const CARD_W = (width - 48) / 2; // 16 padding + 16 gap
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f8f8' },
+  container: {
+    flex: 1,
+    paddingBottom: 50,
+  },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
   /* header */
@@ -665,5 +670,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
+  horizontalCard: {
+    width: 160,
+    marginRight: 12,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+
+  verticalCard: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+
 });
 

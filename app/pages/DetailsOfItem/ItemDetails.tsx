@@ -1127,15 +1127,24 @@ const ItemDetails = () => {
 
                     <View style={styles.colorSection}>
                         <Text style={styles.sectionTitle}>{product.attributeName}: {selectedOption}</Text>
-                        <Picker
-                            selectedValue={selectedOption}
-                            onValueChange={handleOptionChange}
-                            style={styles.picker}
-                        >
-                            {product.options.map((option) => (
-                                <Picker.Item key={option} label={option} value={option} style={styles.pickerTextColor} />
-                            ))}
-                        </Picker>
+                        <View style={styles.pickerWrapper}>
+                            <Picker
+                                selectedValue={selectedOption}
+                                onValueChange={handleOptionChange}
+                                dropdownIconColor="#000"
+                                style={styles.picker}
+                            >
+                                {product.options.map((option) => (
+                                    <Picker.Item
+                                        key={option}
+                                        label={option}
+                                        value={option}
+                                        color="#000"   // <-- IMPORTANT FIX
+                                    />
+                                ))}
+                            </Picker>
+                        </View>
+
                     </View>
 
                     <View style={styles.quantitySection}>

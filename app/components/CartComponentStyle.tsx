@@ -70,10 +70,10 @@ const styles = StyleSheet.create({
     originalPrice: { fontSize: 14, color: '#999', textDecorationLine: 'line-through', marginRight: 8 },
     discountText: { fontSize: 14, color: '#00a650', fontWeight: 'bold' },
 
-    quantityContainer: { flexDirection: 'row', alignItems: 'center' },
+    quantityContainer: { flexDirection: 'row', alignItems: 'center', paddingRight: 14 },
     quantityButton: {
-        width: 36,
-        height: 36,
+        width: 30,
+        height: 30,
         borderRadius: 18,
         borderWidth: 1,
         borderColor: '#ddd',
@@ -342,6 +342,8 @@ const styles = StyleSheet.create({
     shopButtonText: { color: Colors.WHITE, fontWeight: 'bold', fontSize: 16 },
 
     spacer: { height: 100 },
+
+
 });
 
 export default styles;

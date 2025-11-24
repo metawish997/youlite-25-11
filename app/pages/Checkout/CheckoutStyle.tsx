@@ -278,7 +278,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    couponItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+    
+    // couponItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
     couponIcon: { marginRight: 8 },
     couponCode: { fontSize: 14, fontWeight: '500', flex: 1 },
     couponDiscount: { fontSize: 14, color: '#00a650', fontWeight: 'bold' },
@@ -362,6 +363,26 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     toastTxt: { color: '#fff' },
+    couponItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#F0F9FF',
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: '#BAE6FD',
+    },
+    couponInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    removeCouponButton: {
+        padding: 4,
+        marginLeft: 8,
+    },
 });
 
 export default styles;

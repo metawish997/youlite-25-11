@@ -17,21 +17,21 @@ const { width } = Dimensions.get('window');
 const bannerData = [
   {
     id: '1',
-    image: require('@/assets/images/product-img1.webp'),
-    title: 'Apple Book',
-    description: "Don't miss the last opportunity.",
+    image: require('@/assets/images/scrollbanner/1.jpg'),
+    title: 'Solar Mashal Light (Y-23)',
+    description: "Bring classic elegance to your outdoor.",
   },
   {
     id: '2',
-    image: require('@/assets/images/product-img2.webp'),
-    title: 'Smartwatches',
-    description: "Don't miss the last opportunity.",
+    image: require('@/assets/images/scrollbanner/2.jpg'),
+    title: 'Solar Mini Flood Light (Y-23 Modal )',
+    description: "Perfect for security and decorative purposes.",
   },
   {
     id: '3',
-    image: require('@/assets/images/product-img3.webp'),
-    title: 'SmartTV',
-    description: "Don't miss the last opportunity.",
+    image: require('@/assets/images/scrollbanner/3.jpg'),
+    title: 'Solar Pillar Light Glove (Y-18 Modal)',
+    description: "Combines elegance with functionality.",
   },
 ];
 
@@ -112,26 +112,34 @@ const StaticBanner: React.FC = () => {
                 <Text
                   style={[
                     styles.title,
-                    item.id === '2' && { color: '#000' }, // contrast tweak for slide 2
+                    item.id === '1' && { color: '#000' },
                   ]}
                 >
                   {item.title}
                 </Text>
                 <Text
                   style={[
-                    styles.description,
-                    item.id === '2' && { color: '#363636ff' },
+                    styles.description, item.id === '1' && { color: '#363636ff' },
                   ]}
                 >
                   {item.description}
                 </Text>
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Shop Now</Text>
+                <View
+                  style={[
+                    styles.button,
+                    item.id !== '1' && { borderColor: 'white' }
+                  ]}
+                >
+                  <Text style={item.id === '1' ? styles.buttonText : styles.buttonTextWhite}>
+                    Shop Now
+                  </Text>
                 </View>
+
               </View>
             </ImageBackground>
           </TouchableOpacity>
-        )}
+        )
+        }
       />
 
       {/* Dots Indicator */}
@@ -141,7 +149,7 @@ const StaticBanner: React.FC = () => {
           return <View key={`dot_${index}`} style={[styles.dot, isActive && styles.activeDot]} />;
         })}
       </View>
-    </View>
+    </View >
   );
 };
 
@@ -158,7 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 0,
   },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 5,
@@ -169,16 +177,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: '#fff',
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderRadius: 20,
+    borderRadius: 12,
     alignSelf: 'flex-start',
+    borderWidth: 1
   },
   buttonText: {
     color: '#000',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  buttonTextWhite: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14
   },
   dotContainer: {
     flexDirection: 'row',

@@ -78,20 +78,40 @@ const WishList: React.FC = () => {
           })
         );
 
-        const items: WishListItem[] = prods
-          .filter(Boolean)
-          .map((p: any) => {
-            const price = toNum(p?.sale_price ?? p?.price, 0);
-            const original = toNum(p?.regular_price ?? p?.price, 0);
+        const items: WishListItem[] = await Promise.all(
+          prods.filter(Boolean).map(async (p: any) => {
+            let price = 0;
+            let original = 0;
+
+            // ✅ If variable product → get first variation price
+            if (p?.type === "variable" && Array.isArray(p?.variations) && p.variations.length > 0) {
+              try {
+                const firstVariationId = p.variations[0];
+                const variationRes = await loadProductById(firstVariationId);
+                const v = variationRes;
+
+                price = toNum(v?.sale_price ?? v?.price, 0);
+                original = toNum(v?.regular_price ?? v?.price, price);
+              } catch (e) {
+                console.log("Variation fetch error:", e);
+              }
+            } else {
+              // ✅ Simple product
+              price = toNum(p?.sale_price ?? p?.price, 0);
+              original = toNum(p?.regular_price ?? p?.price, price);
+            }
+
             return {
               id: String(p?.id),
-              name: p?.name || 'Unnamed',
+              name: p?.name || "Unnamed",
               price,
               originalPrice: original > price ? original : undefined,
-              image: { uri: p?.images?.[0]?.src || 'https://via.placeholder.com/150' },
-              inStock: (p?.stock_status ?? 'instock') === 'instock',
+              image: { uri: p?.images?.[0]?.src || "https://via.placeholder.com/150" },
+              inStock: (p?.stock_status ?? "instock") === "instock",
             };
-          });
+          })
+        );
+
 
         setWishlistItems(items);
       } catch (err) {

@@ -33,26 +33,14 @@
       "expo-secure-store",
       "expo-video",
       "expo-notifications",
-      "react-native-video",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "gradlePluginVersion": "8.0.0",
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34
-          }
-        }
-      ]
+      "react-native-video"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "router": {},
-      "eas": {
-        "projectId": "1dedf285-2757-4c1a-a21a-cf3b9a2d178c"
-      }
+      "eas": {}
     }
   }
 }

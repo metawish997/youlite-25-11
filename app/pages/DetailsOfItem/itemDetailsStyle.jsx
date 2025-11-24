@@ -211,9 +211,9 @@ const styles = StyleSheet.create({
     footer: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'white', padding: 16, borderTopWidth: 1, borderTopColor: '#e2e8f0' },
     wishlistButton: { justifyContent: 'center', alignItems: 'center', padding: 15, borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 8, marginRight: 10 },
     addToCartButtonFooter: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 15, backgroundColor: Colors.SECONDARY, borderRadius: 8, marginRight: 10 },
-    addToCartTextFooter: { color: Colors.WHITE, fontWeight: '600', fontSize: 16 },
+    addToCartTextFooter: { color: Colors.WHITE, fontWeight: '600', fontSize: 13 },
     checkoutButton: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 15, backgroundColor: Colors.PRIMARY, borderRadius: 8 },
-    checkoutText: { color: 'white', fontWeight: '600', fontSize: 16 },
+    checkoutText: { color: 'white', fontWeight: '600', fontSize: 13 },
     secureText: { fontSize: 12, color: '#666', marginTop: 4 },
     messageContainer: {
         position: 'absolute',
@@ -319,6 +319,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(0,0,0,0.3)',
     },
+    pickerWrapper: {
+        backgroundColor: '#f7fafc',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        overflow: 'hidden',
+    },
+
+    picker: {
+        height: 50,
+        width: '100%',
+        color: '#000',
+    },
+
 });
 
 

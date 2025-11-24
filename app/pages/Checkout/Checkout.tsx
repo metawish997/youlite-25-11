@@ -1394,14 +1394,28 @@ const Checkout: React.FC = () => {
             )}
 
             {/* APPLIED COUPONS */}
+            {/* APPLIED COUPONS */}
             {appliedCoupons.length > 0 && (
               <View style={styles.couponSection}>
                 <Text style={styles.sectionTitle}>Applied Coupons</Text>
                 {appliedCoupons.map((c) => (
                   <View key={c.code} style={styles.couponItem}>
-                    <Ionicons name="pricetag" size={18} color={Colors.PRIMARY} style={styles.couponIcon} />
-                    <Text style={styles.couponCode}>{c.code.toUpperCase()}</Text>
-                    <Text style={styles.couponDiscount}>-₹{toNum(c.amount).toFixed(2)}</Text>
+                    <View style={styles.couponInfo}>
+                      <Ionicons name="pricetag" size={18} color={Colors.PRIMARY} style={styles.couponIcon} />
+                      <Text style={styles.couponCode}>{c.code.toUpperCase()}</Text>
+                      <Text style={styles.couponDiscount}>-₹{toNum(c.amount).toFixed(2)}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.removeCouponButton}
+                      onPress={() => {
+                        // Remove coupon logic
+                        const updatedCoupons = appliedCoupons.filter(coupon => coupon.code !== c.code);
+                        setAppliedCoupons(updatedCoupons);
+                        showToast(`Coupon ${c.code} removed`);
+                      }}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#EF4444" />
+                    </TouchableOpacity>
                   </View>
                 ))}
               </View>

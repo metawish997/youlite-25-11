@@ -28,18 +28,27 @@ const Help = () => {
     };
 
     const popularTopics: HelpTopic[] = [
-        { id: 1, title: 'Terms and Conditions', icon: 'card', path: '/termsAllPages/termsAndCondition' },
-        { id: 2, title: 'Privacy and Policy', icon: 'refresh-circle', path: '/termsAllPages/Pivacy' },
-        { id: 3, title: 'Return and Replacement', icon: 'lock-closed', path: '/termsAllPages/Return' },
-        { id: 4, title: 'Shipping & Delivery', icon: 'boat', path: '/termsAllPages/Shipping' },
+        { id: 1, title: 'Account Policy', icon: 'document-text', path: '/termsAllPages/AccountPolicy' },
+        { id: 2, title: 'Shipping & Delivery Policy', icon: 'cube', path: '/termsAllPages/Shipping' },
+        { id: 3, title: 'Refund, Return & Replacement Policy', icon: 'refresh-circle', path: '/termsAllPages/Return' },
+        { id: 4, title: 'Privacy Policy', icon: 'shield-checkmark', path: '/termsAllPages/Privacy' },
+        { id: 5, title: 'Payment Policy', icon: 'card', path: '/termsAllPages/Payment' },
+        { id: 6, title: 'Warranty Policy', icon: 'build', path: '/termsAllPages/Warranty' },
+        { id: 7, title: 'User Account Policy', icon: 'person-circle', path: '/termsAllPages/AccountPolicy' },
+        { id: 8, title: 'Delete Account', icon: 'trash', path: '/termsAllPages/DeleteAccount' },
+        { id: 9, title: '10% Discount Policy', icon: 'pricetag', path: '/termsAllPages/DiscountPolicy' },
     ];
 
     const faqs = [
-        { id: 1, question: 'How long do solar lights last?', answer: 'Most solar lights last between 3 to 5 years, depending on the quality of the battery and exposure to sunlight.' },
-        { id: 2, question: 'Do solar lights work on cloudy or rainy days?', answer: 'Yes, solar lights can still work on cloudy days, but the performance may be reduced since less sunlight is available for charging.' },
-        { id: 3, question: 'How many hours do solar lights stay on at night?', answer: 'Fully charged solar lights usually run for 8-12 hours at night, depending on the battery capacity and brightness settings.' },
-        { id: 4, question: 'Do solar products need a lot of maintenance?', answer: 'Solar lights require very little maintenance. Cleaning the solar panel occasionally and replacing the battery every few years keeps them working efficiently.' },
+        { id: 1, question: 'How does switching to solar lighting save money in the long run?', answer: 'While the initial cost might be slightly higher, solar lights pay for themselves within a few months because they require zero electricity to run. Once installed, your operational cost is free forever.' },
+        { id: 2, question: 'Will my security lights work during a power outage or load shedding?', answer: 'Yes! This is one of the biggest advantages of solar energy. Since our lights operate independently of the main electrical grid, they will keep shining even if the entire neighborhood loses power.' },
+        { id: 3, question: 'Why is solar lighting considered safer than traditional wired lighting?', answer: 'Solar lights operate on low-voltage DC power, which eliminates the risk of electric shocks, short circuits, or fire hazards associated with high-voltage AC wiring.' },
+        { id: 4, question: 'How does using solar products contribute to a greener environment?', answer: 'By using solar lights, you are reducing the demand for fossil-fuel-based electricity. A single solar street light can save hundreds of kilograms of carbon emissions (CO2) over its lifespan. It is a simple yet powerful way to reduce your carbon footprint and combat climate change while lighting up your home.' },
     ];
+
+    const handleTopicPress = (path: string) => {
+        router.push(path as any);
+    };
 
     return (
         <View style={styles.container}>
@@ -64,22 +73,25 @@ const Help = () => {
                     />
                 </View> */}
 
-                {/* Popular Topics (styled like old FAQ items) */}
+                {/* Popular Topics */}
                 <Text style={styles.sectionTitle}>Popular Topics</Text>
                 {popularTopics.map(topic => (
                     <TouchableOpacity
                         key={topic.id}
                         style={styles.faqItem}
-                        onPress={() => router.push(topic.path)}
+                        onPress={() => handleTopicPress(topic.path)}
                     >
                         <View style={styles.faqHeader}>
-                            <Text style={styles.faqQuestion}>{topic.title}</Text>
+                            <View style={styles.topicContent}>
+                                <Ionicons name={topic.icon} size={20} color={Colors.PRIMARY} style={styles.topicIcon} />
+                                <Text style={styles.faqQuestion}>{topic.title}</Text>
+                            </View>
                             <Ionicons name="chevron-forward" size={20} color="#4a6da7" />
                         </View>
                     </TouchableOpacity>
                 ))}
 
-                {/* FAQ Section (styled like old Popular Topics cards) */}
+                {/* FAQ Section */}
                 <View style={styles.faqSection}>
                     <Text style={styles.sectionTitle}>FAQ</Text>
                     {faqs.map(faq => (
@@ -159,7 +171,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 15,
         color: '#1a1a1a',
-        marginTop:10
+        marginTop: 10
     },
     // Popular Topics styled like old FAQ items
     faqItem: {
@@ -173,10 +185,19 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
+    topicContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    topicIcon: {
+        marginRight: 12,
+    },
     faqQuestion: {
         fontSize: 16,
         color: '#333',
         paddingRight: 10,
+        flex: 1,
     },
     // FAQ section styled like old Popular Topics cards
     topicCard: {
@@ -213,6 +234,5 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
 });
-
 
 export default Help;
