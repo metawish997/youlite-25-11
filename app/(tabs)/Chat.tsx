@@ -123,7 +123,8 @@ const ChatListScreen = () => {
     return (
       <TouchableOpacity
         style={styles.productItem}
-        onPress={() => router.push({pathname: '/pages/DetailsOfItem/ChatDetails',params: { productId: item.id.toString(), productName: item.name }
+        onPress={() => router.push({
+          pathname: '/pages/DetailsOfItem/ChatDetails', params: { productId: item.id.toString(), productName: item.name }
         })}
       >
         <Image
@@ -135,7 +136,7 @@ const ChatListScreen = () => {
       </TouchableOpacity>
     );
   };
-
+  // below is return code.
   return (
     <View style={styles.container}>
       <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} />

@@ -1139,7 +1139,8 @@ const ItemDetails = () => {
                                         key={option}
                                         label={option}
                                         value={option}
-                                        color="#000"   // <-- IMPORTANT FIX
+                                        color="#000"
+                                        style={{ backgroundColor: 'white' }}
                                     />
                                 ))}
                             </Picker>
