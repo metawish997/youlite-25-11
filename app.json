@@ -33,14 +33,17 @@
       "expo-secure-store",
       "expo-video",
       "expo-notifications",
-      "react-native-video"
+      "react-native-video",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "router": {},
-      "eas": {}
+      "eas": {
+        "projectId": "1dedf285-2757-4c1a-a21a-cf3b9a2d178c"
+      }
     }
   }
 }
