@@ -2,7 +2,7 @@
   "expo": {
     "name": "YouLite",
     "slug": "YouLite",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "youlite",
@@ -11,7 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.YouLite"
+      "bundleIdentifier": "com.youlite.store"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,9 +19,13 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.YouLite",
+      "package": "com.youlite.store",
+      "versionCode": 5,
       "googleServicesFile": "./google-services.json",
-      "permissions": []
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,16 +38,25 @@
       "expo-video",
       "expo-notifications",
       "react-native-video",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "kotlinVersion": "2.0.20"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "router": {},
-      "eas": {
-        "projectId": "1dedf285-2757-4c1a-a21a-cf3b9a2d178c"
-      }
+      "eas": {}
     }
   }
 }
